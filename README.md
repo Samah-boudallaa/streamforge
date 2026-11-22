@@ -7,10 +7,12 @@
   <img alt="Build" src="https://img.shields.io/badge/build-CMake%20%2B%20Ninja-064F8C?style=for-the-badge">
   <img alt="Status" src="https://img.shields.io/badge/status-in%20development-orange?style=for-the-badge">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-3fb950?style=for-the-badge">
+  <a href="https://github.com/Samah-boudallaa/streamforge/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Samah-boudallaa/streamforge/actions/workflows/ci.yml/badge.svg"></a>
 </p>
 
 <p align="center">
   <a href="#why-streamforge">Why</a> &nbsp;·&nbsp;
+  <a href="#current-status">Status</a> &nbsp;·&nbsp;
   <a href="#architecture">Architecture</a> &nbsp;·&nbsp;
   <a href="#the-big-idea-columns-not-rows">Columnar</a> &nbsp;·&nbsp;
   <a href="#the-query-optimizer">Optimizer</a> &nbsp;·&nbsp;
@@ -62,6 +64,24 @@ StreamForge tackles each of these with a dedicated component, built and measured
 
 ---
 
+## Current status
+
+What exists today, and what is next. This table is updated with every milestone.
+
+| Component | Status | Notes |
+|---|:--:|---|
+| Core foundations | Done | Types, error handling, logging, configuration, versioning |
+| Test infrastructure | Done | CTest, custom `CHECK` macro, Valgrind-clean tests |
+| CSV tokenizer | Done | Quoted fields, escaped quotes, CRLF and LF, embedded newlines, error reporting |
+| Typed columns | Done | `INT64`, `FLOAT64`, `STRING`, null bitmap, amortized growth |
+| Schema inference | Next | Detect `INT64`, `FLOAT64`, `STRING` per column, null tokens |
+| CSV file loader | Next | File to columns, with line-accurate parse errors |
+| Batches and tables | Planned | Fixed-size batches over columns |
+| Command-line interface | Planned | `schema`, `head`, then queries |
+| Aggregations | Planned | `SUM`, `COUNT`, `MIN`, `MAX`, `AVG` over contiguous buffers |
+
+---
+
 ## Architecture
 
 Five stages carry data from raw files to results, while a memory manager and a thread pool support every one of them.
@@ -72,8 +92,8 @@ Five stages carry data from raw files to results, while a memory manager and a t
 
 | Stage | Responsibility | Status |
 |---|---|:--:|
-| **Ingestion** | Parse CSV and JSONL, validate schemas, infer types, detect nulls, load in batches | Planned |
-| **Columnar storage** | Typed columns over contiguous buffers, fixed-size batches, null bitmaps | Planned |
+| **Ingestion** | Parse CSV and JSONL, validate schemas, infer types, detect nulls, load in batches | In progress |
+| **Columnar storage** | Typed columns over contiguous buffers, fixed-size batches, null bitmaps | In progress |
 | **Planner and optimizer** | Logical and physical plans, predicate and projection pushdown | Planned |
 | **Execution engine** | Scan, filter, projection, sort, aggregation, hash join, processed batch by batch | Planned |
 | **Output** | CLI, CSV and JSON export, execution statistics | Planned |
@@ -92,24 +112,30 @@ Analytical queries rarely need every field of a record. Storing each column cont
 
 This layout is also what makes **vectorized execution** possible: instead of pushing one record at a time through the whole pipeline, each operator processes a whole batch of values in a tight loop, which is friendly to CPU caches and compilers.
 
-### Design sketch of the core types
+### The column type (implemented)
 
-> Illustrative only. The final API will evolve as the engine takes shape.
+This is the actual in-memory representation used today (`include/streamforge/column.h`):
 
 ```c
-typedef struct sf_column {
-    sf_type_t  type;       /* INT64, FLOAT64, STRING, ...            */
-    size_t     length;     /* number of values in this column        */
-    void      *data;       /* contiguous buffer of values            */
-    uint8_t   *validity;   /* null bitmap: 1 bit per value           */
+typedef struct {
+    sf_type_t type;
+    size_t length;
+    size_t capacity;      /* capacity in values */
+    size_t null_count;
+    uint8_t *validity;    /* bitmap, 1 = valid */
+    void *data;           /* contiguous values, or string bytes */
+    uint64_t *offsets;    /* STRING only: length + 1 entries */
+    size_t data_size;     /* STRING only */
+    size_t data_capacity; /* STRING only */
 } sf_column_t;
 
-typedef struct sf_batch {
-    size_t         num_rows;     /* a fixed batch size, e.g. 4096    */
-    size_t         num_columns;
-    sf_column_t  **columns;
-} sf_batch_t;
+sf_status_t sf_column_init(sf_column_t *column, sf_type_t type, sf_error_t *error);
+sf_status_t sf_column_append_int64(sf_column_t *column, int64_t value, sf_error_t *error);
+sf_status_t sf_column_append_null(sf_column_t *column, sf_error_t *error);
+void        sf_column_destroy(sf_column_t *column);
 ```
+
+Design choices: values live in one contiguous buffer, nulls are tracked in a separate bitmap (so a null never costs a sentinel value), and variable-width strings use an offsets array in the style of Apache Arrow.
 
 ---
 
@@ -163,7 +189,7 @@ Performance claims without evidence are just marketing. StreamForge will ship wi
 The project grows in nine phases, each producing something testable.
 
 <p align="center">
-  <img src="assets/roadmap.svg" alt="StreamForge roadmap: nine phases from core foundations to release, phase 1 in progress" width="100%">
+  <img src="assets/roadmap.svg" alt="StreamForge roadmap: nine phases from core foundations to release; phase 1 done, phases 2 and 3 in progress" width="100%">
 </p>
 
 > **First milestone (phases 2 to 4):** a small but *correct* engine that ingests a dataset, stores it in columnar form, runs a filter and an aggregation, and returns the right answer. Everything else builds on that.
@@ -174,8 +200,8 @@ The project grows in nine phases, each producing something testable.
 | Phase | Focus | Status |
 |:--:|---|:--:|
 | 1 | **Core foundations**: project structure, CMake, core types, error handling, logging, ownership conventions, test infrastructure | Done |
-| 2 | **Data ingestion**: CSV and JSONL parsing, schemas, validation, batch loading | Planned |
-| 3 | **Columnar storage**: columns, buffers, null representation, batches | Planned |
+| 2 | **Data ingestion**: CSV and JSONL parsing, schemas, validation, batch loading. *CSV tokenizer done; schema inference and file loader next.* | In progress |
+| 3 | **Columnar storage**: columns, buffers, null representation, batches. *Typed columns done; batches and tables next.* | In progress |
 | 4 | **Query execution**: scan, filter, projection, sort, aggregation, hash join | Planned |
 | 5 | **Query optimization**: logical and physical plans, pushdowns, cost estimation | Planned |
 | 6 | **Memory management**: accounting, limits, batch execution, disk spilling | Planned |
@@ -191,18 +217,18 @@ The project grows in nine phases, each producing something testable.
 
 This project is meant to show disciplined systems programming, not just C syntax.
 
-| Area | Tooling |
-|---|---|
-| Language | **C17** |
-| Compilers | GCC, Clang |
-| Build | CMake + Ninja |
-| Tests | CTest + custom unit tests |
-| Debugging | GDB |
-| Memory analysis | Valgrind |
-| Formatting | clang-format |
-| Static analysis | clang-tidy + strict compiler warnings |
-| Concurrency | POSIX threads |
-| CI | GitHub Actions |
+| Area | Tooling | Status |
+|---|---|:--:|
+| Language | **C17**, extensions off | Done |
+| Compilers | GCC, Clang | Done |
+| Build | CMake + Ninja, `-Wall -Wextra -Wpedantic -Werror` | Done |
+| Tests | CTest + custom unit tests | Done |
+| Memory analysis | Valgrind on every test | Done |
+| CI | GitHub Actions: GCC and Clang, Debug and Release | Done |
+| Formatting | clang-format | Done |
+| Debugging | GDB | In use |
+| Static analysis | clang-tidy | Planned |
+| Concurrency | POSIX threads | Planned |
 
 ### Design principles
 
@@ -217,18 +243,24 @@ This project is meant to show disciplined systems programming, not just C syntax
 
 ## Getting started
 
-> *The build is not available yet. These are the target commands once Phase 1 lands.*
+**Requirements:** a C17 compiler (GCC or Clang), CMake 3.20 or newer, and Ninja. Valgrind is optional.
 
 ```bash
 git clone https://github.com/Samah-boudallaa/streamforge.git
 cd streamforge
 
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
-### Target usage (design sketch, not implemented yet)
+Run a test under Valgrind:
+
+```bash
+valgrind --leak-check=full --error-exitcode=1 ./build/test_column
+```
+
+### Target usage (design sketch, the CLI is not implemented yet)
 
 ```bash
 # Inspect a dataset's inferred schema
@@ -248,25 +280,37 @@ streamforge query data/sales.csv --agg "avg(amount)" --out result.json
 
 ---
 
-## Project structure (planned)
+## Project structure
 
 ```
 streamforge/
+├── .github/workflows/     # CI: GCC and Clang, Debug and Release, Valgrind
 ├── assets/                # README images
+├── benchmarks/            # Reproducible benchmark suite (planned)
+├── docs/
+│   ├── architecture/
+│   ├── benchmarks/
+│   ├── design-decisions/
+│   └── development/
+├── examples/
 ├── include/streamforge/   # Public headers
+├── scripts/
 ├── src/
-│   ├── ingest/            # CSV / JSONL parsers, schema, validation
-│   ├── storage/           # Columns, buffers, batches, nulls
-│   ├── exec/              # Scan, filter, aggregate, sort, join
-│   ├── plan/              # Logical & physical plans, optimizer
-│   ├── mem/               # Allocators, accounting, spilling
-│   ├── parallel/          # Thread pool, scheduler
-│   └── cli/               # Command-line interface
-├── tests/                 # Unit, integration, stress tests
-├── bench/                 # Reproducible benchmark suite
-├── docs/                  # Architecture notes & decision records
-├── LICENSE
-└── CMakeLists.txt
+│   ├── core/              # Types, errors, logging, config, version
+│   ├── ingestion/         # CSV tokenizer (schema inference and loader next)
+│   ├── storage/           # Typed columns with null bitmaps
+│   ├── execution/         # Operators (planned)
+│   ├── optimizer/         # Logical and physical plans, rewrite rules (planned)
+│   ├── memory/            # Allocators, accounting, spilling (planned)
+│   ├── parallel/          # Thread pool, scheduler (planned)
+│   └── cli/               # Command-line interface (planned)
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── stress/
+├── CMakeLists.txt
+├── CONTRIBUTING.md
+└── LICENSE
 ```
 
 ---
@@ -289,7 +333,7 @@ Architectural ideas drawn from the analytical-engine world, notably **DuckDB** a
 
 ## Contributing
 
-The project is at its very beginning, so the architecture is still taking shape. Issues, ideas and feedback on design choices are welcome. Contribution guidelines will be added as the codebase stabilizes.
+The project is at an early stage, so the architecture is still taking shape. Issues, ideas and feedback on design choices are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow.
 
 ## License
 
