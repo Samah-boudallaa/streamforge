@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="580" viewBox="0 0 1200 580" role="img" aria-labelledby="t d" xmlns:c2pa="http://c2pa.org/manifest">
+  <title id="t">Row-oriented versus column-oriented storage</title>
+  <desc id="d">For the query SELECT AVG(Age), a row store touches nine values to use three, while a column store reads only the three Age values from one contiguous buffer.</desc>
+  <style>
+    text { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; }
+    .pt { font-size: 20px; font-weight: 700; fill: #f0f6fc; }
+    .ps { font-size: 13px; fill: #8b949e; }
+    .hd { font-size: 13px; font-weight: 700; fill: #8b949e; text-anchor: middle; }
+    .v  { font-size: 15px; fill: #e6edf3; text-anchor: middle; }
+    .vd { font-size: 15px; fill: #6e7681; text-anchor: middle; }
+    .ml { font-size: 11px; letter-spacing: 2px; fill: #6e7681; }
+    .mv { font-size: 12px; fill: #e6edf3; text-anchor: middle; }
+    .mvd { font-size: 12px; fill: #6e7681; text-anchor: middle; }
+    .cap { font-size: 13px; fill: #8b949e; }
+    .tag { font-size: 11px; text-anchor: middle; }
+  </style>
+
+  <rect width="1200" height="580" rx="18" fill="#0d1117"/>
+
+  <!-- Query -->
+  <rect x="410" y="18" width="380" height="42" rx="21" fill="#1c2330" stroke="#ff8a3d"/>
+  <text x="600" y="45" font-family="Consolas, 'SF Mono', Menlo, monospace" font-size="16" fill="#ffd27a" text-anchor="middle">SELECT AVG(Age) FROM people;</text>
+
+  <!-- ============ LEFT PANEL ============ -->
+  <rect x="20" y="78" width="570" height="484" rx="14" fill="#11161d" stroke="#30363d"/>
+  <text x="48" y="116" class="pt">Row-oriented</text>
+  <text x="48" y="138" class="ps">Each record is stored together</text>
+
+  <!-- header -->
+  <g>
+    <rect x="125" y="160" width="80" height="32" fill="#1c2330" stroke="#30363d"/><text x="165" y="181" class="hd">ID</text>
+    <rect x="205" y="160" width="160" height="32" fill="#1c2330" stroke="#30363d"/><text x="285" y="181" class="hd">Name</text>
+    <rect x="365" y="160" width="80" height="32" fill="#1c2330" stroke="#30363d"/><text x="405" y="181" class="hd">Age</text>
+  </g>
+  <!-- rows -->
+  <g stroke-width="1">
+    <rect x="125" y="192" width="80" height="42" fill="#f85149" fill-opacity=".14" stroke="#f85149" stroke-opacity=".4"/><text x="165" y="218" class="v">1</text>
+    <rect x="205" y="192" width="160" height="42" fill="#f85149" fill-opacity=".14" stroke="#f85149" stroke-opacity=".4"/><text x="285" y="218" class="v">Alice</text>
+    <rect x="365" y="192" width="80" height="42" fill="#3fb9a0" fill-opacity=".30" stroke="#3fb9a0"/><text x="405" y="218" class="v">22</text>
+
+    <rect x="125" y="234" width="80" height="42" fill="#f85149" fill-opacity=".14" stroke="#f85149" stroke-opacity=".4"/><text x="165" y="260" class="v">2</text>
+    <rect x="205" y="234" width="160" height="42" fill="#f85149" fill-opacity=".14" stroke="#f85149" stroke-opacity=".4"/><text x="285" y="260" class="v">Bob</text>
+    <rect x="365" y="234" width="80" height="42" fill="#3fb9a0" fill-opacity=".30" stroke="#3fb9a0"/><text x="405" y="260" class="v">25</text>
+
+    <rect x="125" y="276" width="80" height="42" fill="#f85149" fill-opacity=".14" stroke="#f85149" stroke-opacity=".4"/><text x="165" y="302" class="v">3</text>
+    <rect x="205" y="276" width="160" height="42" fill="#f85149" fill-opacity=".14" stroke="#f85149" stroke-opacity=".4"/><text x="285" y="302" class="v">Charlie</text>
+    <rect x="365" y="276" width="80" height="42" fill="#3fb9a0" fill-opacity=".30" stroke="#3fb9a0"/><text x="405" y="302" class="v">21</text>
+  </g>
+  <!-- row read arrows -->
+  <g stroke="#8b949e" stroke-width="1.5" fill="none">
+    <path d="M108 213 H120 M116 209 L120 213 L116 217"/>
+    <path d="M108 255 H120 M116 251 L120 255 L116 259"/>
+    <path d="M108 297 H120 M116 293 L120 297 L116 301"/>
+  </g>
+
+  <text x="48" y="368" font-size="15" font-weight="700" fill="#ff7b72" style="font-family:'Segoe UI',Helvetica,Arial,sans-serif">Reads every field of every row</text>
+  <text x="48" y="390" class="ps">9 values touched, only 3 needed</text>
+
+  <text x="48" y="428" class="ml">MEMORY LAYOUT</text>
+  <g stroke-width="1">
+    <rect x="67"  y="440" width="54" height="42" fill="#f85149" fill-opacity=".14" stroke="#f85149" stroke-opacity=".4"/><text x="94"  y="466" class="mv">1</text>
+    <rect x="121" y="440" width="54" height="42" fill="#f85149" fill-opacity=".14" stroke="#f85149" stroke-opacity=".4"/><text x="148" y="466" class="mv">Alice</text>
+    <rect x="175" y="440" width="54" height="42" fill="#3fb9a0" fill-opacity=".30" stroke="#3fb9a0"/><text x="202" y="466" class="mv">22</text>
+    <rect x="229" y="440" width="54" height="42" fill="#f85149" fill-opacity=".14" stroke="#f85149" stroke-opacity=".4"/><text x="256" y="466" class="mv">2</text>
+    <rect x="283" y="440" width="54" height="42" fill="#f85149" fill-opacity=".14" stroke="#f85149" stroke-opacity=".4"/><text x="310" y="466" class="mv">Bob</text>
+    <rect x="337" y="440" width="54" height="42" fill="#3fb9a0" fill-opacity=".30" stroke="#3fb9a0"/><text x="364" y="466" class="mv">25</text>
+    <rect x="391" y="440" width="54" height="42" fill="#f85149" fill-opacity=".14" stroke="#f85149" stroke-opacity=".4"/><text x="418" y="466" class="mv">3</text>
+    <rect x="445" y="440" width="54" height="42" fill="#f85149" fill-opacity=".14" stroke="#f85149" stroke-opacity=".4"/><text x="472" y="466" class="mv">Charlie</text>
+    <rect x="499" y="440" width="54" height="42" fill="#3fb9a0" fill-opacity=".30" stroke="#3fb9a0"/><text x="526" y="466" class="mv">21</text>
+  </g>
+  <text x="48" y="514" class="cap">Needed values are scattered between unneeded ones.</text>
+  <text x="48" y="536" class="cap">More memory traffic for the same answer.</text>
+
+  <!-- ============ RIGHT PANEL ============ -->
+  <rect x="610" y="78" width="570" height="484" rx="14" fill="#11161d" stroke="#3fb9a0" stroke-opacity=".6"/>
+  <text x="638" y="116" class="pt">Column-oriented</text>
+  <text x="638" y="138" class="ps">StreamForge stores each column together</text>
+
+  <!-- ID column -->
+  <rect x="700" y="160" width="80" height="32" fill="#1c2330" stroke="#30363d"/><text x="740" y="181" class="hd">ID</text>
+  <g fill="#6e7681" fill-opacity=".10" stroke="#484f58" stroke-dasharray="4 3">
+    <rect x="700" y="192" width="80" height="42"/>
+    <rect x="700" y="234" width="80" height="42"/>
+    <rect x="700" y="276" width="80" height="42"/>
+  </g>
+  <text x="740" y="218" class="vd">1</text><text x="740" y="260" class="vd">2</text><text x="740" y="302" class="vd">3</text>
+
+  <!-- Name column -->
+  <rect x="810" y="160" width="160" height="32" fill="#1c2330" stroke="#30363d"/><text x="890" y="181" class="hd">Name</text>
+  <g fill="#6e7681" fill-opacity=".10" stroke="#484f58" stroke-dasharray="4 3">
+    <rect x="810" y="192" width="160" height="42"/>
+    <rect x="810" y="234" width="160" height="42"/>
+    <rect x="810" y="276" width="160" height="42"/>
+  </g>
+  <text x="890" y="218" class="vd">Alice</text><text x="890" y="260" class="vd">Bob</text><text x="890" y="302" class="vd">Charlie</text>
+
+  <!-- Age column -->
+  <rect x="1000" y="160" width="80" height="32" fill="#1c2330" stroke="#3fb9a0"/><text x="1040" y="181" class="hd" style="fill:#3fb9a0">Age</text>
+  <g fill="#3fb9a0" fill-opacity=".30" stroke="#3fb9a0">
+    <rect x="1000" y="192" width="80" height="42"/>
+    <rect x="1000" y="234" width="80" height="42"/>
+    <rect x="1000" y="276" width="80" height="42"/>
+  </g>
+  <text x="1040" y="218" class="v">22</text><text x="1040" y="260" class="v">25</text><text x="1040" y="302" class="v">21</text>
+
+  <text x="740" y="338" class="tag" fill="#6e7681">not read</text>
+  <text x="890" y="338" class="tag" fill="#6e7681">not read</text>
+  <text x="1040" y="338" class="tag" fill="#3fb9a0">read</text>
+
+  <text x="638" y="368" font-size="15" font-weight="700" fill="#3fb9a0" style="font-family:'Segoe UI',Helvetica,Arial,sans-serif">Reads only the Age column</text>
+  <text x="638" y="390" class="ps">3 values touched, 3 needed</text>
+
+  <text x="638" y="428" class="ml">MEMORY LAYOUT</text>
+  <g fill="#6e7681" fill-opacity=".10" stroke="#484f58" stroke-dasharray="4 3">
+    <rect x="640" y="440" width="54" height="42"/><rect x="694" y="440" width="54" height="42"/><rect x="748" y="440" width="54" height="42"/>
+    <rect x="814" y="440" width="54" height="42"/><rect x="868" y="440" width="54" height="42"/><rect x="922" y="440" width="54" height="42"/>
+  </g>
+  <text x="667" y="466" class="mvd">1</text><text x="721" y="466" class="mvd">2</text><text x="775" y="466" class="mvd">3</text>
+  <text x="841" y="466" class="mvd">Alice</text><text x="895" y="466" class="mvd">Bob</text><text x="949" y="466" class="mvd">Charlie</text>
+  <g fill="#3fb9a0" fill-opacity=".30" stroke="#3fb9a0">
+    <rect x="988" y="440" width="54" height="42"/><rect x="1042" y="440" width="54" height="42"/><rect x="1096" y="440" width="54" height="42"/>
+  </g>
+  <text x="1015" y="466" class="mv">22</text><text x="1069" y="466" class="mv">25</text><text x="1123" y="466" class="mv">21</text>
+
+  <text x="638" y="514" class="cap">Needed values sit side by side in one contiguous run.</text>
+  <text x="638" y="536" class="cap">Sequential access, cache-friendly, ready for vectorized processing.</text>
+<metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTphZmEyZGIxOS01YWE0LTQxMTItYTM0OC0wYjc5YWNhYWViYzQAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaB6EadBy1zFI7BiKCyWrSPYAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo4NTVhOWY5My03NTI2LTRjMjAtOWNkOS0wMWIyNzk2NjI2ZGFscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNol5l0y5BiZDpo9wcjv69IxAAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFgg8f0ygyMj1/ptG6DQQ/uvS9N4epiOTXf3V9tbIZvUgHSkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaGMcD/AqNGJoQvP1GoruxrcAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIHL+wF3/cRBIeaHjIHiBX5Rix2uD9fcpp+4rv+iVi4VoZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GSRxZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmFmYTJkYjE5LTVhYTQtNDExMi1hMzQ4LTBiNzlhY2FhZWJjNC9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjE3YmVmYzZiLWIyM2ItNDY3Mi1iMWEyLTJhZTMwMDY5MGRjMHJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCDx/TKDIyPX+m0boNBD+69L03h6mI5Nd/dX21shm9SAdKJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggiaeeSKAKOIUn3v0bfUtMqgLac/M33rGDk5KAYX+5TxmiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggjgPRrrOxAP6as2PYX8cei/XzrW1KbLrNIXQbZc1UY8d0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQDZDinQMk0UqXEd01upBQDe4gHxq4pm27naJXUeu4Xv98ZSQWXDuDDKRaogMJAQkvIgIIwwH8xm5gRLtjitPLKk=</c2pa:manifest></metadata></svg>

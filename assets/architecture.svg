@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="t d" xmlns:c2pa="http://c2pa.org/manifest">
+  <title id="t">StreamForge architecture</title>
+  <desc id="d">Data flows from CSV and JSONL sources through ingestion, columnar storage, planning and optimization, vectorized execution, and output. A memory manager and a thread pool support every stage.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#8b949e"/>
+    </marker>
+    <marker id="arrowDash" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#6e7681"/>
+    </marker>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d1117"/>
+      <stop offset="1" stop-color="#121820"/>
+    </linearGradient>
+  </defs>
+  <style>
+    text { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; }
+    .h  { font-size: 14px; font-weight: 700; fill: #f0f6fc; }
+    .b  { font-size: 12.5px; fill: #9da7b3; }
+    .n  { font-size: 15px; font-weight: 800; fill: #0d1117; text-anchor: middle; }
+    .sh { font-size: 16px; font-weight: 700; fill: #f0f6fc; }
+    .sb { font-size: 13px; fill: #9da7b3; }
+    .lg { font-size: 12px; fill: #8b949e; }
+    .chip { font-size: 13px; font-weight: 600; fill: #e6edf3; text-anchor: middle; }
+    .card { fill: #161b22; stroke: #30363d; stroke-width: 1.2; }
+  </style>
+
+  <rect width="1200" height="560" rx="18" fill="url(#bg)"/>
+
+  <!-- Sources -->
+  <rect x="62" y="26" width="64" height="34" rx="17" fill="#58a6ff" fill-opacity=".15" stroke="#58a6ff"/>
+  <text x="94" y="48" class="chip">CSV</text>
+  <rect x="138" y="26" width="80" height="34" rx="17" fill="#58a6ff" fill-opacity=".15" stroke="#58a6ff"/>
+  <text x="178" y="48" class="chip">JSONL</text>
+  <line x1="140" y1="62" x2="140" y2="86" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Stage 1 -->
+  <rect x="45" y="90" width="190" height="210" rx="12" class="card"/>
+  <rect x="61" y="106" width="40" height="3" rx="1.5" fill="#58a6ff"/>
+  <circle cx="77" cy="140" r="15" fill="#58a6ff"/><text x="77" y="145.5" class="n">1</text>
+  <text x="61" y="186" class="h">Ingestion</text>
+  <g class="b">
+    <circle cx="66" cy="208" r="2.5" fill="#58a6ff"/><text x="76" y="212">CSV and JSONL parsing</text>
+    <circle cx="66" cy="230" r="2.5" fill="#58a6ff"/><text x="76" y="234">Schema validation</text>
+    <circle cx="66" cy="252" r="2.5" fill="#58a6ff"/><text x="76" y="256">Type inference</text>
+    <circle cx="66" cy="274" r="2.5" fill="#58a6ff"/><text x="76" y="278">Null detection</text>
+  </g>
+
+  <!-- Stage 2 -->
+  <rect x="275" y="90" width="190" height="210" rx="12" class="card"/>
+  <rect x="291" y="106" width="40" height="3" rx="1.5" fill="#3fb9a0"/>
+  <circle cx="307" cy="140" r="15" fill="#3fb9a0"/><text x="307" y="145.5" class="n">2</text>
+  <text x="291" y="186" class="h">Columnar Storage</text>
+  <g class="b">
+    <circle cx="296" cy="208" r="2.5" fill="#3fb9a0"/><text x="306" y="212">Contiguous buffers</text>
+    <circle cx="296" cy="230" r="2.5" fill="#3fb9a0"/><text x="306" y="234">Fixed-size batches</text>
+    <circle cx="296" cy="252" r="2.5" fill="#3fb9a0"/><text x="306" y="256">Null bitmaps</text>
+    <circle cx="296" cy="274" r="2.5" fill="#3fb9a0"/><text x="306" y="278">Typed columns</text>
+  </g>
+
+  <!-- Stage 3 -->
+  <rect x="505" y="90" width="190" height="210" rx="12" class="card"/>
+  <rect x="521" y="106" width="40" height="3" rx="1.5" fill="#a371f7"/>
+  <circle cx="537" cy="140" r="15" fill="#a371f7"/><text x="537" y="145.5" class="n">3</text>
+  <text x="521" y="186" class="h">Planner and Optimizer</text>
+  <g class="b">
+    <circle cx="526" cy="208" r="2.5" fill="#a371f7"/><text x="536" y="212">Logical plan</text>
+    <circle cx="526" cy="230" r="2.5" fill="#a371f7"/><text x="536" y="234">Physical plan</text>
+    <circle cx="526" cy="252" r="2.5" fill="#a371f7"/><text x="536" y="256">Predicate pushdown</text>
+    <circle cx="526" cy="274" r="2.5" fill="#a371f7"/><text x="536" y="278">Projection pushdown</text>
+  </g>
+
+  <!-- Stage 4 -->
+  <rect x="735" y="90" width="190" height="210" rx="12" class="card"/>
+  <rect x="751" y="106" width="40" height="3" rx="1.5" fill="#ff8a3d"/>
+  <circle cx="767" cy="140" r="15" fill="#ff8a3d"/><text x="767" y="145.5" class="n">4</text>
+  <text x="751" y="186" class="h">Execution Engine</text>
+  <g class="b">
+    <circle cx="756" cy="208" r="2.5" fill="#ff8a3d"/><text x="766" y="212">Scan, filter, project</text>
+    <circle cx="756" cy="230" r="2.5" fill="#ff8a3d"/><text x="766" y="234">Aggregate and sort</text>
+    <circle cx="756" cy="252" r="2.5" fill="#ff8a3d"/><text x="766" y="256">Hash join</text>
+    <circle cx="756" cy="274" r="2.5" fill="#ff8a3d"/><text x="766" y="278">Batch-at-a-time</text>
+  </g>
+
+  <!-- Stage 5 -->
+  <rect x="965" y="90" width="190" height="210" rx="12" class="card"/>
+  <rect x="981" y="106" width="40" height="3" rx="1.5" fill="#f2cc60"/>
+  <circle cx="997" cy="140" r="15" fill="#f2cc60"/><text x="997" y="145.5" class="n">5</text>
+  <text x="981" y="186" class="h">Output</text>
+  <g class="b">
+    <circle cx="986" cy="208" r="2.5" fill="#f2cc60"/><text x="996" y="212">Command-line interface</text>
+    <circle cx="986" cy="230" r="2.5" fill="#f2cc60"/><text x="996" y="234">CSV and JSON export</text>
+    <circle cx="986" cy="252" r="2.5" fill="#f2cc60"/><text x="996" y="256">Execution statistics</text>
+    <circle cx="986" cy="274" r="2.5" fill="#f2cc60"/><text x="996" y="278">Query profiling</text>
+  </g>
+
+  <!-- Data flow arrows -->
+  <g stroke="#8b949e" stroke-width="2" marker-end="url(#arrow)">
+    <line x1="239" y1="195" x2="271" y2="195"/>
+    <line x1="469" y1="195" x2="501" y2="195"/>
+    <line x1="699" y1="195" x2="731" y2="195"/>
+    <line x1="929" y1="195" x2="961" y2="195"/>
+  </g>
+
+  <!-- Cross-cutting connectors -->
+  <g stroke="#6e7681" stroke-width="1.5" stroke-dasharray="5 4" fill="none">
+    <path d="M140 300 V334"/>
+    <path d="M370 300 V334"/>
+    <path d="M600 300 V334"/>
+    <path d="M830 300 V334"/>
+    <path d="M1060 300 V334"/>
+    <path d="M140 334 H1060"/>
+    <path d="M315 334 V362" marker-end="url(#arrowDash)"/>
+    <path d="M885 334 V362" marker-end="url(#arrowDash)"/>
+  </g>
+  <text x="160" y="326" class="lg">supports every stage</text>
+
+  <!-- Memory manager -->
+  <rect x="45" y="366" width="540" height="124" rx="12" class="card"/>
+  <rect x="45" y="366" width="6" height="124" rx="3" fill="#a371f7"/>
+  <text x="70" y="398" class="sh">Memory Manager</text>
+  <g class="sb">
+    <text x="70" y="424">Explicit ownership conventions and memory accounting</text>
+    <text x="70" y="446">Configurable limits and buffer lifecycle control</text>
+    <text x="70" y="468">Disk spilling for memory-hungry operators</text>
+  </g>
+
+  <!-- Thread pool -->
+  <rect x="615" y="366" width="540" height="124" rx="12" class="card"/>
+  <rect x="615" y="366" width="6" height="124" rx="3" fill="#3fb9a0"/>
+  <text x="640" y="398" class="sh">Thread Pool</text>
+  <g class="sb">
+    <text x="640" y="424">POSIX threads with work queues</text>
+    <text x="640" y="446">Task scheduling and synchronization</text>
+    <text x="640" y="468">Parallel scan and parallel aggregation</text>
+  </g>
+
+  <!-- Legend -->
+  <line x1="45" y1="528" x2="85" y2="528" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="96" y="532" class="lg">Data flow</text>
+  <line x1="185" y1="528" x2="225" y2="528" stroke="#6e7681" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="236" y="532" class="lg">Cross-cutting support</text>
+<metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTpkYzg1NjcxNC1mNzE1LTQyYjMtODVlMy04OTk2NzliNWRmNDkAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaI+j3ALLhQ9durCmz1bKD0kAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDphOTE5NzgxMi0zYTg0LTQ5MWEtODIwMy00MWNmZWMxZmJlZmJscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoKkQFlLvl61AaKP8aEyPPMwAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggixuAposaqjljEK/CCO4Iumj619A1LUv97kte5l8HI6SkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaKWZeOeFA98rIU+NSQZsfCMAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIPMpHhhRs59wCQtqPfi0jNnOs4JUHyBR6WhJ37V5jOKeZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GR5JZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmRjODU2NzE0LWY3MTUtNDJiMy04NWUzLTg5OTY3OWI1ZGY0OS9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjY3YmFkZmI1LTZmYmYtNDFkZC05MWVlLTY3NjdjYjQ4Yzc2Y3JjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCCLG4CmixqqOWMQr8II7gi6aPrX0DUtS/3uS17mXwcjpKJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggccd4sa6d7rDSEYYxANt1WY5KLuKQ3b83QEcdKR5a6S+iY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFgg/ibW/xayzB9nCU1dDVYRYoqMJ8vIoFTqmdrLbDSaI3R0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQLF5rqHnnTkMHDBrncBKayzdJD+4kdRX7pXhngLL5dlC7QeaHNxosBpu1R95P8alMsCOm7yqLzijgSAMozjid3s=</c2pa:manifest></metadata></svg>
