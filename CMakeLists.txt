@@ -34,6 +34,8 @@ add_library(streamforge_core STATIC
     src/core/log.c
     src/core/version.c
     src/core/config.c
+    src/ingestion/csv.c
+    src/storage/column.c
 )
 
 add_library(StreamForge::Core ALIAS streamforge_core)
@@ -50,13 +52,14 @@ sf_enable_warnings(streamforge_core)
 if(SF_BUILD_TESTS)
     enable_testing()
 
-    add_executable(test_core
-        tests/unit/test_core.c
-    )
+    function(sf_add_test name source)
+        add_executable(${name} ${source})
+        target_link_libraries(${name} PRIVATE StreamForge::Core)
+        sf_enable_warnings(${name})
+        add_test(NAME ${name} COMMAND ${name})
+    endfunction()
 
-    target_link_libraries(test_core PRIVATE StreamForge::Core)
-
-    sf_enable_warnings(test_core)
-
-    add_test(NAME core_tests COMMAND test_core)
+    sf_add_test(test_core   tests/unit/test_core.c)
+    sf_add_test(test_csv    tests/unit/test_csv.c)
+    sf_add_test(test_column tests/unit/test_column.c)
 endif()
