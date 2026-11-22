@@ -173,7 +173,7 @@ The project grows in nine phases, each producing something testable.
 
 | Phase | Focus | Status |
 |:--:|---|:--:|
-| 1 | **Core foundations**: project structure, CMake, core types, error handling, logging, ownership conventions, test infrastructure | In progress |
+| 1 | **Core foundations**: project structure, CMake, core types, error handling, logging, ownership conventions, test infrastructure | Done |
 | 2 | **Data ingestion**: CSV and JSONL parsing, schemas, validation, batch loading | Planned |
 | 3 | **Columnar storage**: columns, buffers, null representation, batches | Planned |
 | 4 | **Query execution**: scan, filter, projection, sort, aggregation, hash join | Planned |

@@ -59,7 +59,7 @@
 
   <!-- Status pills -->
   <rect x="47" y="308" width="86" height="24" rx="12" fill="#58a6ff"/>
-  <text x="90" y="325" class="st" fill="#0d1117">In progress</text>
+  <text x="90" y="325" class="st" fill="#0d1117">Done</text>
   <g fill="none" stroke="#30363d">
     <rect x="174.5" y="308" width="86" height="24" rx="12"/>
     <rect x="302"   y="308" width="86" height="24" rx="12"/>
