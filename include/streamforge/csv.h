@@ -23,6 +23,7 @@ typedef struct {
     size_t len;
     size_t pos;
     size_t line; /* 1-based line number of the next record */
+    size_t record_line; /* 1-based line where the last record started */
     sf_csv_dialect_t dialect;
 } sf_csv_reader_t;
 

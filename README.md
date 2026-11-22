@@ -74,8 +74,8 @@ What exists today, and what is next. This table is updated with every milestone.
 | Test infrastructure | Done | CTest, custom `CHECK` macro, Valgrind-clean tests |
 | CSV tokenizer | Done | Quoted fields, escaped quotes, CRLF and LF, embedded newlines, error reporting |
 | Typed columns | Done | `INT64`, `FLOAT64`, `STRING`, null bitmap, amortized growth |
-| Schema inference | Next | Detect `INT64`, `FLOAT64`, `STRING` per column, null tokens |
-| CSV file loader | Next | File to columns, with line-accurate parse errors |
+| Schema inference | Done | Detect `INT64`, `FLOAT64`, `STRING` per column, null tokens |
+| CSV file loader | Done | File to columns, with line-accurate parse errors |
 | Batches and tables | Planned | Fixed-size batches over columns |
 | Command-line interface | Planned | `schema`, `head`, then queries |
 | Aggregations | Planned | `SUM`, `COUNT`, `MIN`, `MAX`, `AVG` over contiguous buffers |

@@ -19,6 +19,7 @@ void sf_csv_reader_init(sf_csv_reader_t *r, const char *data, size_t len,
     r->len = len;
     r->pos = 0;
     r->line = 1;
+    r->record_line = 1;
     r->dialect = dialect;
 }
 
@@ -39,6 +40,8 @@ sf_csv_status_t sf_csv_next_record(sf_csv_reader_t *r, char *scratch, size_t scr
     if (r->pos >= r->len) {
         return SF_CSV_EOF;
     }
+
+    r->record_line = r->line;
 
     size_t out = 0;
     size_t n = 0;
