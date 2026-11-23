@@ -63,7 +63,7 @@
   <g fill="none" stroke="#30363d">
     <rect x="174.5" y="308" width="86" height="24" rx="12" stroke="#ff8a3d"/>
     <rect x="302"   y="308" width="86" height="24" rx="12" stroke="#ff8a3d"/>
-    <rect x="429.5" y="308" width="86" height="24" rx="12"/>
+    <rect x="429.5" y="308" width="86" height="24" rx="12" stroke="#ff8a3d"/>
     <rect x="557"   y="308" width="86" height="24" rx="12"/>
     <rect x="684.5" y="308" width="86" height="24" rx="12"/>
     <rect x="812"   y="308" width="86" height="24" rx="12"/>
@@ -73,7 +73,7 @@
   <g class="st" fill="#8b949e">
     <text x="217.5" y="325" fill="#ff8a3d">In progress</text>
     <text x="345" y="325" fill="#ff8a3d">In progress</text>
-    <text x="472.5" y="325">Planned</text>
+    <text x="472.5" y="325" fill="#ff8a3d">In progress</text>
     <text x="600"   y="325">Planned</text>
     <text x="727.5" y="325">Planned</text>
     <text x="855"   y="325">Planned</text>

@@ -1,0 +1,7 @@
+id,region,amount,quantity
+1,north,120.50,3
+2,south,80.00,1
+3,north,200.25,5
+4,east,,2
+5,south,45.75,NA
+6,west,310.00,7

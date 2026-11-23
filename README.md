@@ -7,18 +7,18 @@
   <img alt="Build" src="https://img.shields.io/badge/build-CMake%20%2B%20Ninja-064F8C?style=for-the-badge">
   <img alt="Status" src="https://img.shields.io/badge/status-in%20development-orange?style=for-the-badge">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-3fb950?style=for-the-badge">
-  <a href="https://github.com/Samah-boudallaa/streamforge/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Samah-boudallaa/streamforge/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/Samah-boudallaa/streamforge/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Samah-boudallaa/streamforge/actions/workflows/ci.yml/badge.svg?branch=main"></a>
 </p>
 
 <p align="center">
   <a href="#why-streamforge">Why</a> &nbsp;·&nbsp;
   <a href="#current-status">Status</a> &nbsp;·&nbsp;
+  <a href="#try-it">Try it</a> &nbsp;·&nbsp;
   <a href="#architecture">Architecture</a> &nbsp;·&nbsp;
   <a href="#the-big-idea-columns-not-rows">Columnar</a> &nbsp;·&nbsp;
   <a href="#the-query-optimizer">Optimizer</a> &nbsp;·&nbsp;
   <a href="#benchmarking-philosophy">Benchmarks</a> &nbsp;·&nbsp;
-  <a href="#roadmap">Roadmap</a> &nbsp;·&nbsp;
-  <a href="#getting-started">Getting started</a>
+  <a href="#roadmap">Roadmap</a>
 </p>
 
 ---
@@ -71,14 +71,64 @@ What exists today, and what is next. This table is updated with every milestone.
 | Component | Status | Notes |
 |---|:--:|---|
 | Core foundations | Done | Types, error handling, logging, configuration, versioning |
-| Test infrastructure | Done | CTest, custom `CHECK` macro, Valgrind-clean tests |
+| Test infrastructure | Done | CTest, custom `CHECK` macro, Valgrind-clean tests, CLI end-to-end tests |
 | CSV tokenizer | Done | Quoted fields, escaped quotes, CRLF and LF, embedded newlines, error reporting |
 | Typed columns | Done | `INT64`, `FLOAT64`, `STRING`, null bitmap, amortized growth |
-| Schema inference | Done | Detect `INT64`, `FLOAT64`, `STRING` per column, null tokens |
-| CSV file loader | Done | File to columns, with line-accurate parse errors |
-| Batches and tables | Planned | Fixed-size batches over columns |
-| Command-line interface | Planned | `schema`, `head`, then queries |
-| Aggregations | Planned | `SUM`, `COUNT`, `MIN`, `MAX`, `AVG` over contiguous buffers |
+| Schema inference | Done | `INT64`, `FLOAT64`, `STRING` per column; `NULL`, `NA`, `N/A` and empty fields become nulls |
+| CSV file loader | Done | File to typed table, with line-accurate parse errors |
+| Aggregations | Done | `COUNT`, `SUM`, `MIN`, `MAX`, `AVG` over contiguous buffers, null-aware, overflow-checked |
+| Command-line interface | In progress | `schema`, `head`, `agg` available; filtering and queries next |
+| Filtering | Next | Row masks and aggregates over selected rows |
+| Group by | Planned | Hash-based grouped aggregation |
+| Batch-based execution | Planned | Fixed-size batches, the base of vectorized execution |
+| First benchmarks | Planned | Reproducible workloads against pandas and DuckDB |
+
+---
+
+## Try it
+
+**Requirements:** a C17 compiler (GCC or Clang), CMake 3.20 or newer, and Ninja. Valgrind is optional.
+
+```bash
+git clone https://github.com/Samah-boudallaa/streamforge.git
+cd streamforge
+
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
+Explore the sample dataset:
+
+```bash
+./build/streamforge schema examples/sales.csv        # inferred column types and null counts
+./build/streamforge head   examples/sales.csv 3      # first rows, as an aligned table
+./build/streamforge agg    examples/sales.csv amount sum
+```
+
+```text
+sum(amount) = 756.5
+```
+
+Supported aggregations are `count`, `sum`, `min`, `max` and `avg`. Nulls are ignored, an aggregation over no values returns `NULL`, and integer `SUM` reports an error on overflow instead of silently wrapping.
+
+Check a test for leaks:
+
+```bash
+valgrind --leak-check=full --error-exitcode=1 ./build/test_column
+```
+
+### Where the CLI is heading (design sketch, not implemented yet)
+
+```bash
+# Filter, group and aggregate in parallel, with execution statistics
+streamforge query data/sales.csv \
+  --filter "amount > 100" \
+  --group-by region \
+  --agg "sum(amount), count(*)" \
+  --threads 8 \
+  --stats
+```
 
 ---
 
@@ -93,10 +143,10 @@ Five stages carry data from raw files to results, while a memory manager and a t
 | Stage | Responsibility | Status |
 |---|---|:--:|
 | **Ingestion** | Parse CSV and JSONL, validate schemas, infer types, detect nulls, load in batches | In progress |
-| **Columnar storage** | Typed columns over contiguous buffers, fixed-size batches, null bitmaps | In progress |
+| **Columnar storage** | Typed columns over contiguous buffers, tables, fixed-size batches, null bitmaps | In progress |
 | **Planner and optimizer** | Logical and physical plans, predicate and projection pushdown | Planned |
-| **Execution engine** | Scan, filter, projection, sort, aggregation, hash join, processed batch by batch | Planned |
-| **Output** | CLI, CSV and JSON export, execution statistics | Planned |
+| **Execution engine** | Scan, filter, projection, sort, aggregation, hash join, processed batch by batch | In progress |
+| **Output** | CLI, CSV and JSON export, execution statistics | In progress |
 | **Memory manager** | Ownership conventions, accounting, limits, disk spilling | Planned |
 | **Thread pool** | Work queues, scheduling, parallel scan and aggregation | Planned |
 
@@ -136,6 +186,23 @@ void        sf_column_destroy(sf_column_t *column);
 ```
 
 Design choices: values live in one contiguous buffer, nulls are tracked in a separate bitmap (so a null never costs a sentinel value), and variable-width strings use an offsets array in the style of Apache Arrow.
+
+A table owns a schema and one column per field, and is produced by the CSV loader:
+
+```c
+sf_table_t table;
+sf_error_t err;
+
+if (sf_csv_load_file("examples/sales.csv", NULL, &table, &err) == SF_STATUS_OK) {
+    sf_scalar_t total;
+    size_t idx;
+
+    sf_table_find_column(&table, "amount", &idx);
+    sf_agg_sum(&table.columns[idx], &total, &err);   /* total.as.f64 == 756.5 */
+
+    sf_table_destroy(&table);
+}
+```
 
 ---
 
@@ -189,10 +256,10 @@ Performance claims without evidence are just marketing. StreamForge will ship wi
 The project grows in nine phases, each producing something testable.
 
 <p align="center">
-  <img src="assets/roadmap.svg" alt="StreamForge roadmap: nine phases from core foundations to release; phase 1 done, phases 2 and 3 in progress" width="100%">
+  <img src="assets/roadmap.svg" alt="StreamForge roadmap: nine phases from core foundations to release; phase 1 done, phases 2 to 4 in progress" width="100%">
 </p>
 
-> **First milestone (phases 2 to 4):** a small but *correct* engine that ingests a dataset, stores it in columnar form, runs a filter and an aggregation, and returns the right answer. Everything else builds on that.
+> **First milestone (phases 2 to 4):** a small but *correct* engine that ingests a dataset, stores it in columnar form, runs a filter and an aggregation, and returns the right answer. Loading, storage and aggregation are done; filtering is the last missing piece.
 
 <details>
 <summary><b>Phase details</b></summary>
@@ -200,9 +267,9 @@ The project grows in nine phases, each producing something testable.
 | Phase | Focus | Status |
 |:--:|---|:--:|
 | 1 | **Core foundations**: project structure, CMake, core types, error handling, logging, ownership conventions, test infrastructure | Done |
-| 2 | **Data ingestion**: CSV and JSONL parsing, schemas, validation, batch loading. *CSV tokenizer done; schema inference and file loader next.* | In progress |
-| 3 | **Columnar storage**: columns, buffers, null representation, batches. *Typed columns done; batches and tables next.* | In progress |
-| 4 | **Query execution**: scan, filter, projection, sort, aggregation, hash join | Planned |
+| 2 | **Data ingestion**: CSV and JSONL parsing, schemas, validation, batch loading. *CSV tokenizer, schema inference and file loader done; JSONL and batch loading next.* | In progress |
+| 3 | **Columnar storage**: columns, buffers, null representation, batches. *Typed columns and tables done; batches next.* | In progress |
+| 4 | **Query execution**: scan, filter, projection, sort, aggregation, hash join. *Aggregations done; filter, group by, sort and join next.* | In progress |
 | 5 | **Query optimization**: logical and physical plans, pushdowns, cost estimation | Planned |
 | 6 | **Memory management**: accounting, limits, batch execution, disk spilling | Planned |
 | 7 | **Parallel execution**: thread pool, scheduling, parallel operators | Planned |
@@ -222,8 +289,8 @@ This project is meant to show disciplined systems programming, not just C syntax
 | Language | **C17**, extensions off | Done |
 | Compilers | GCC, Clang | Done |
 | Build | CMake + Ninja, `-Wall -Wextra -Wpedantic -Werror` | Done |
-| Tests | CTest + custom unit tests | Done |
-| Memory analysis | Valgrind on every test | Done |
+| Tests | CTest: unit tests and CLI end-to-end tests | Done |
+| Memory analysis | Valgrind on every unit test, in CI | Done |
 | CI | GitHub Actions: GCC and Clang, Debug and Release | Done |
 | Formatting | clang-format | Done |
 | Debugging | GDB | In use |
@@ -241,45 +308,6 @@ This project is meant to show disciplined systems programming, not just C syntax
 
 ---
 
-## Getting started
-
-**Requirements:** a C17 compiler (GCC or Clang), CMake 3.20 or newer, and Ninja. Valgrind is optional.
-
-```bash
-git clone https://github.com/Samah-boudallaa/streamforge.git
-cd streamforge
-
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
-cmake --build build
-ctest --test-dir build --output-on-failure
-```
-
-Run a test under Valgrind:
-
-```bash
-valgrind --leak-check=full --error-exitcode=1 ./build/test_column
-```
-
-### Target usage (design sketch, the CLI is not implemented yet)
-
-```bash
-# Inspect a dataset's inferred schema
-streamforge schema data/sales.csv
-
-# Run an analytical query with execution statistics
-streamforge query data/sales.csv \
-  --filter "amount > 100" \
-  --group-by region \
-  --agg "sum(amount), count(*)" \
-  --threads 8 \
-  --stats
-
-# Export the result
-streamforge query data/sales.csv --agg "avg(amount)" --out result.json
-```
-
----
-
 ## Project structure
 
 ```
@@ -292,20 +320,20 @@ streamforge/
 │   ├── benchmarks/
 │   ├── design-decisions/
 │   └── development/
-├── examples/
+├── examples/              # Sample datasets (sales.csv)
 ├── include/streamforge/   # Public headers
 ├── scripts/
 ├── src/
 │   ├── core/              # Types, errors, logging, config, version
-│   ├── ingestion/         # CSV tokenizer (schema inference and loader next)
-│   ├── storage/           # Typed columns with null bitmaps
-│   ├── execution/         # Operators (planned)
+│   ├── ingestion/         # CSV tokenizer, type inference, CSV loader
+│   ├── storage/           # Typed columns with null bitmaps, tables
+│   ├── execution/         # Aggregations (filter, group by, join planned)
 │   ├── optimizer/         # Logical and physical plans, rewrite rules (planned)
 │   ├── memory/            # Allocators, accounting, spilling (planned)
 │   ├── parallel/          # Thread pool, scheduler (planned)
-│   └── cli/               # Command-line interface (planned)
+│   └── cli/               # Command-line tool: schema, head, agg
 ├── tests/
-│   ├── unit/
+│   ├── unit/              # Unit tests and the shared CHECK macro
 │   ├── integration/
 │   └── stress/
 ├── CMakeLists.txt
